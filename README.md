@@ -1,2 +1,2 @@
-# gaagenda-confcompanion
-Transform Google Agenda Events to JSON for Conf Companion
+# Google Agenda to JSON Converter
+> Convert Google Agenda events to Conf Companion JSON
