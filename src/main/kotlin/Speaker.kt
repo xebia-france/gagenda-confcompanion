@@ -1,1 +1,1 @@
-data class Speaker(val name: String)
+data class Speaker(val id: String, val firstName: String, val lastName: String? = null, val imageURL: String? = null, val tweetHandle: String? = null)
