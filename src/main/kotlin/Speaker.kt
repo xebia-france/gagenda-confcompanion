@@ -1,0 +1,1 @@
+data class Speaker(val name: String)

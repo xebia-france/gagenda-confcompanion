@@ -18,7 +18,8 @@ class TalkService {
         events.forEachIndexed { index, event ->
             talks.add(Talk(Date(event.start.dateTime.value),
                     "id-$index", Date(event.end.dateTime.value),
-                    event.summary))
+                    event.summary,
+                    event.speakers))
         }
         return talks
     }
