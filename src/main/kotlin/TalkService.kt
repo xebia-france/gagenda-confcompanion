@@ -19,7 +19,8 @@ class TalkService {
             talks.add(Talk(Date(event.start.dateTime.value),
                     "id-$index", Date(event.end.dateTime.value),
                     event.summary,
-                    event.speakers))
+                    event.speakers,
+                    event.description))
         }
         return talks
     }

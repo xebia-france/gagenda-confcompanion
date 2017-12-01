@@ -4,28 +4,20 @@ import org.apache.commons.codec.digest.DigestUtils
 
 private const val SPEAKERS_GOOGLE_KEY = "attendees"
 
-val Event.speakers: List<Speaker>?
+val Event.speakers: List<SpeakerTalk>
     get() {
-        if (!containsKey(SPEAKERS_GOOGLE_KEY)) {
-            return null
-        }
-
-        val speakers: MutableList<Speaker> = mutableListOf()
+        val speakers: MutableList<SpeakerTalk> = mutableListOf()
 
         try {
             (get(SPEAKERS_GOOGLE_KEY) as ArrayList<EventAttendee>)
                     .forEach {
-                        speakers.add(Speaker(it.generateSpeakerId(), it.displayName, null, it.generatePictureUrl()))
+                        speakers.add(SpeakerTalk(it.generateSpeakerId(), it.displayName))
                     }
         } catch (ignored: Exception) {
             // Speaker may have no displayName
         }
 
-        if (isEmpty()) {
-            return null
-        } else {
-            return speakers
-        }
+        return speakers
     }
 
 private fun EventAttendee.generatePictureUrl(): String {

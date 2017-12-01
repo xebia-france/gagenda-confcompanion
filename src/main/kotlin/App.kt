@@ -28,5 +28,8 @@ fun main(args: Array<String>) {
         File("./schedule.json").bufferedWriter().use {
             it.write(json)
         }
+
+        AWSS3Persister()
+                .putObject("./schedule.json")
     }
 }

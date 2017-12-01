@@ -31,7 +31,8 @@ dependencies {
             "com.google.apis:google-api-services-calendar:v3-rev264-1.23.0",
             "io.github.microutils:kotlin-logging:1.4.6",
             "org.slf4j:slf4j-log4j12:1.7.25",
-            "com.squareup.moshi:moshi:$moshi_version")
+            "com.squareup.moshi:moshi:$moshi_version",
+            "com.amazonaws:aws-java-sdk-s3:1.11.236")
 }
 
 compileKotlin {
