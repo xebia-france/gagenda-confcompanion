@@ -20,7 +20,8 @@ class TalkService {
                     "id-$index", Date(event.end.dateTime.value),
                     event.summary,
                     event.speakers,
-                    event.description))
+                    event.description,
+                    event.location))
         }
         return talks
     }
