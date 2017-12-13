@@ -1,7 +1,7 @@
 import java.util.*
 import java.util.regex.Pattern
 
-data class Talk(val fromTime: Date, val id: String, val toTime: Date, var title: String, val speakers: List<SpeakerTalk>? = null, val summary: String?, val room: String?) {
+data class Talk(val conferenceId: String, val fromTime: Date, val id: String, val toTime: Date, var title: String, val speakers: List<SpeakerTalk>? = null, val summary: String?, val room: String?) {
 
     private var type: String = ""
     private var kind: String? = null

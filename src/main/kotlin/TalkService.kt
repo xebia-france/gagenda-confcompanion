@@ -3,7 +3,7 @@ import com.squareup.moshi.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TalkService {
+class TalkService(val conferenceId: String) {
 
     private val type = Types.newParameterizedType(List::class.java, Talk::class.java)
     private val moshi by lazy {
@@ -16,8 +16,9 @@ class TalkService {
     fun convert(events: List<Event>): List<Talk> {
         val talks = mutableListOf<Talk>()
         events.forEachIndexed { index, event ->
-            talks.add(Talk(Date(event.start.dateTime.value),
-                    "id-${index + 1}", Date(event.end.dateTime.value),
+            talks.add(Talk(conferenceId,
+                    Date(event.start.dateTime.value),
+                    "xke-${index + 1}", Date(event.end.dateTime.value),
                     event.summary,
                     event.speakers,
                     event.description,

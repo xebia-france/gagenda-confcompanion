@@ -1,6 +1,7 @@
 import com.google.api.client.util.DateTime
 import mu.KotlinLogging
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 
 private val LOG = KotlinLogging.logger {}
@@ -30,7 +31,7 @@ fun main(args: Array<String>) {
         LOG.debug { "Sorry, but no events found :(" }
     } else {
 
-        val talkService = TalkService()
+        val talkService = TalkService(from.generateId("xke"))
         val talks = talkService.convert(events)
         val scheduleJson = talkService.toJson(talks)
 
@@ -48,4 +49,10 @@ fun main(args: Array<String>) {
         }
         AWSS3Persister().putSpeakers("./speakers.json")
     }
+}
+
+private fun Calendar.generateId(slug: String): String {
+    val dateFormatter = SimpleDateFormat("yyyyMMdd", Locale.FRANCE)
+
+    return "$slug-${dateFormatter.format(this.time)}}"
 }
