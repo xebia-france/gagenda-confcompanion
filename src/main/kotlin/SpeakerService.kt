@@ -20,7 +20,7 @@ class SpeakerService {
         val speakers = mutableSetOf<Speaker>()
 
         events.forEach { talk ->
-            talk.speakers.forEach {
+            talk.speakers?.forEach {
                 speakers.add(convert(it))
                 speakers.filter { speaker -> it.id == speaker.id }
                         .forEach {
