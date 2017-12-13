@@ -33,13 +33,21 @@ class AWSS3Persister {
     }
 
 
-    fun putObject(objectPath: String) {
+    private fun putObject(remotePath: String, objectPath: String) {
         s3Client.putObject(
-                PutObjectRequest(awsConfigurationFile.bucketName, awsConfigurationFile.scheduleFilePath, File(objectPath))
+                PutObjectRequest(awsConfigurationFile.bucketName, remotePath, File(objectPath))
                         .withAccessControlList(acl))
 
     }
 
+    fun putSchedule(objectPath: String) {
+        putObject(awsConfigurationFile.scheduleFilePath, objectPath)
+    }
+
+    fun putSpeakers(objectPath: String) {
+        putObject(awsConfigurationFile.speakersFilePath, objectPath)
+    }
+
 }
 
-data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String, val scheduleFilePath: String)
+data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String, val scheduleFilePath: String, val speakersFilePath: String)

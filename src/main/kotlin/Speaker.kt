@@ -1,1 +1,1 @@
-data class Speaker(val id: String, val firstName: String?, val lastName: String? = null, val imageURL: String? = null, val tweetHandle: String? = null)
+data class Speaker(val id: String, var firstName: String? = null, var lastName: String? = null, var imageURL: String? = null, var bio: String? = null, var tweetHandle: String? = null, var talks: MutableList<Talk> = mutableListOf())
