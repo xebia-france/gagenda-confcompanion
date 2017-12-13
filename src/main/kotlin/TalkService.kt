@@ -17,7 +17,7 @@ class TalkService {
         val talks = mutableListOf<Talk>()
         events.forEachIndexed { index, event ->
             talks.add(Talk(Date(event.start.dateTime.value),
-                    "id-$index", Date(event.end.dateTime.value),
+                    "id-${index + 1}", Date(event.end.dateTime.value),
                     event.summary,
                     event.speakers,
                     event.description,
