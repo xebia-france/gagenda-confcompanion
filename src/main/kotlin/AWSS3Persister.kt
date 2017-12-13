@@ -2,10 +2,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.AccessControlList
-import com.amazonaws.services.s3.model.GroupGrantee
-import com.amazonaws.services.s3.model.Permission
-import com.amazonaws.services.s3.model.PutObjectRequest
+import com.amazonaws.services.s3.model.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import okio.Okio
@@ -34,8 +31,14 @@ class AWSS3Persister {
 
 
     private fun putObject(remotePath: String, objectPath: String) {
+        val file = File(objectPath)
+        val md = ObjectMetadata()
+        md.contentLength = file.length()
+        md.contentType = "application/json"
+        md.contentEncoding = "UTF-8"
+
         s3Client.putObject(
-                PutObjectRequest(awsConfigurationFile.bucketName, remotePath, File(objectPath))
+                PutObjectRequest(awsConfigurationFile.bucketName, remotePath, File(objectPath).inputStream(), md)
                         .withAccessControlList(acl))
 
     }
