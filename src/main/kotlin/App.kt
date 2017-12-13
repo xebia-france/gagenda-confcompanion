@@ -7,11 +7,11 @@ private val LOG = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     val from: Calendar = Calendar.getInstance()
-    from.set(2018, 0, 8, 7, 0)
+    from.set(2018, 0, 8, 8, 0)
 
     val to: Calendar = Calendar.getInstance()
     to.time = from.time
-    to.add(Calendar.HOUR, 10)
+    to.add(Calendar.HOUR, 12)
 
     val agendaService = GoogleAgendaService()
 
