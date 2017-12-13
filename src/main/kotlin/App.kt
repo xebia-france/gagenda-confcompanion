@@ -54,5 +54,5 @@ fun main(args: Array<String>) {
 private fun Calendar.generateId(slug: String): String {
     val dateFormatter = SimpleDateFormat("yyyyMMdd", Locale.FRANCE)
 
-    return "$slug-${dateFormatter.format(this.time)}}"
+    return "$slug-${dateFormatter.format(this.time)}"
 }
