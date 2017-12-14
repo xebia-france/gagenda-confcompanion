@@ -9,6 +9,7 @@ private val LOG = KotlinLogging.logger {}
 fun main(args: Array<String>) {
     val from: Calendar = Calendar.getInstance()
     from.set(2018, 0, 8, 8, 0)
+//    from.set(2017, 8, 4, 8, 0)
 
     val to: Calendar = Calendar.getInstance()
     to.time = from.time
@@ -30,9 +31,10 @@ fun main(args: Array<String>) {
     if (events.isEmpty()) {
         LOG.debug { "Sorry, but no events found :(" }
     } else {
-
         val talkService = TalkService(from.generateId("xke"))
-        val talks = talkService.convert(events)
+        var talks = talkService.convert(events)
+        talks = talkService.computeRooms(talks)
+
         val scheduleJson = talkService.toJson(talks)
 
         File("./schedule.json").bufferedWriter().use {

@@ -1,10 +1,10 @@
 import java.util.*
 import java.util.regex.Pattern
 
-data class Talk(val conferenceId: String, val fromTime: Date, val id: String, val toTime: Date, var title: String, val speakers: List<SpeakerTalk>? = null, val summary: String?, val room: String?) {
+data class Talk(val conferenceId: String, val fromTime: Date, val id: String, val toTime: Date, var title: String, val speakers: List<SpeakerTalk>? = null, val summary: String?, var room: String?) {
 
-    private var type: String = ""
-    private var kind: String? = null
+    var type: String = ""
+    var kind: String? = null
 
     init {
         if (Pattern.compile(".*(handson|codelab|hands'on).*").matcher(title.toLowerCase()).matches()) {
@@ -15,7 +15,7 @@ data class Talk(val conferenceId: String, val fromTime: Date, val id: String, va
             type = "Talk"
         }
 
-        if (Pattern.compile(".*(plénière|tisanes).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(plénière|tisanes|annonce|pitch|^fondations).*").matcher(title.toLowerCase()).matches()) {
             type = "keynote"
             kind = "keynote"
         }
