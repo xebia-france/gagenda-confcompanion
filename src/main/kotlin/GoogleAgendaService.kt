@@ -3,8 +3,10 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.util.ArrayMap
 import com.google.api.client.util.DateTime
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.calendar.Calendar
@@ -12,20 +14,19 @@ import com.google.api.services.calendar.CalendarScopes
 import com.google.api.services.calendar.model.Event
 import java.io.File
 import java.io.InputStreamReader
-import java.util.*
+
 
 class GoogleAgendaService {
-
     companion object {
         val APP_NAME = "Google Agenda to Conf Companion Converter"
         val SCOPES = listOf(CalendarScopes.CALENDAR_READONLY)
-        val SECRET = "./client_secret.json"
+        val SECRET = "client_secret.json"
         val USER = "user"
         val OFFLINE = "offline"
     }
 
     private val credentialsDir by lazy {
-        File("./credentials/gagenda-confcompanion")
+        File(GoogleAgendaService::class.java.getResource("credentials").path)
     }
     private val jsonFactory by lazy {
         JacksonFactory.getDefaultInstance()
@@ -38,13 +39,30 @@ class GoogleAgendaService {
     }
 
     private fun authorize(): Credential {
-        val stream = GoogleAgendaService::class.java.getResourceAsStream(SECRET)
+        val stream = GoogleAgendaService::class.java.getResourceAsStream("credentials/$SECRET")
         val secrets = GoogleClientSecrets.load(jsonFactory, InputStreamReader(stream))
-        val flow = GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, secrets, SCOPES)
-                .setDataStoreFactory(dataStoreFactory)
-                .setAccessType(OFFLINE)
-                .build()
-        return AuthorizationCodeInstalledApp(flow, LocalServerReceiver()).authorize(USER)
+
+        if (secrets.size < 2) {
+            val flow = GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, secrets, SCOPES)
+                    .setDataStoreFactory(dataStoreFactory)
+                    .setAccessType(OFFLINE)
+                    .build()
+
+            return AuthorizationCodeInstalledApp(flow, LocalServerReceiver()).authorize(USER)
+        } else {
+            val accessToken = (secrets["auth"] as ArrayMap<String, String>).getValue(0)
+            val refreshToken = (secrets["auth"] as ArrayMap<String, String>).getValue(1)
+
+            val credential = GoogleCredential.Builder()
+                    .setTransport(httpTransport)
+                    .setJsonFactory(jsonFactory)
+                    .setClientSecrets(secrets.installed.clientId, secrets.installed.clientSecret).build()
+
+            credential.accessToken = accessToken
+            credential.refreshToken = refreshToken
+
+            return credential
+        }
     }
 
     private fun getCalendarService(): Calendar = Calendar.Builder(httpTransport, jsonFactory, authorize())

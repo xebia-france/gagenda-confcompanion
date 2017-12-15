@@ -137,8 +137,10 @@ private fun <E> List<E>.reverseList(): List<E> {
 
 class FirebaseFetcher {
     init {
+        val stream = TalkService::class.java.getResourceAsStream("credentials/firebase_adminsdk.json")
+
         val options = FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(TalkService::class.java.getResourceAsStream("firebase_adminsdk.json")))
+                .setCredentials(GoogleCredentials.fromStream(stream))
                 .setDatabaseUrl("https://conf-companion.firebaseio.com/")
                 .build()
 

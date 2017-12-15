@@ -16,7 +16,7 @@ class AWSS3Persister {
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(AWSConfigurationFile::class.java)
 
-        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type).fromJson(Okio.buffer(Okio.source(File("./credentials/gagenda-confcompanion/aws_secret.json")))) ?: throw ExceptionInInitializerError("AWS configuration file is missing")
+        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type).fromJson(Okio.buffer(Okio.source(AWSS3Persister::class.java.getResourceAsStream("credentials/aws_secret.json")))) ?: throw ExceptionInInitializerError("AWS configuration file is missing")
 
         val credentials = BasicAWSCredentials(awsConfigurationFile.access_key, awsConfigurationFile.secret_key)
         s3Client = AmazonS3ClientBuilder.standard()
