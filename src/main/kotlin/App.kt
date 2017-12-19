@@ -34,6 +34,8 @@ fun main(args: Array<String>) {
 }
 
 fun compute(computeRooms: Boolean? = false) {
+    TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
+
     val from: Calendar = Calendar.getInstance()
     from.set(2018, 0, 8, 8, 0)
 //    from.set(2017, 8, 4, 8, 0)
