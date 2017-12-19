@@ -59,13 +59,9 @@ class SpeakerService {
                                 }
                             }
 
-                    doc.head().getElementsByAttributeValueStarting("property", "og:")
-                            .forEach {
-                                when (it.attr("property")) {
-                                    "og:description" -> {
-                                        speaker.bio = it.attr("content")
-                                    }
-                                }
+                    doc.body().getElementsByClass("description")
+                            .firstOrNull()?.let {
+                                speaker.bio = it.html()
                             }
                 }
             }
