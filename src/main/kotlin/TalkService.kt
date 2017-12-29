@@ -20,7 +20,8 @@ val rooms = listOf(
         "Eiffel",
         "Montmartre",
         "Monceau",
-        "3ème"
+        "3ème",
+        "Studio"
 )
 
 class TalkService(val conferenceId: String) {
@@ -95,9 +96,11 @@ class TalkService(val conferenceId: String) {
             val currentTalkInterval = Interval.of(talk.fromTime.toInstant(), talk.toTime.toInstant())
 
             //check freeRooms during talk
-            val freeRooms = talksToModify.filter { t ->
+            val freeRooms = talks.filter { t ->
                 val otherInterval = Interval.of(t.fromTime.toInstant(), t.toTime.toInstant())
                 currentTalkInterval.overlaps(otherInterval)
+            }.filter {
+                it.room != null
             }.map {
                 it.room
             }
