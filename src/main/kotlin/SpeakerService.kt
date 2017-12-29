@@ -21,7 +21,11 @@ class SpeakerService {
 
         events.forEach { talk ->
             talk.speakers?.forEach {
-                speakers.add(convert(it))
+                if (speakers.count { speaker ->
+                    it.id == speaker.id
+                } == 0) {
+                    speakers.add(convert(it))
+                }
                 speakers.filter { speaker -> it.id == speaker.id }
                         .forEach {
                             it.talks.add(talk)
@@ -61,8 +65,8 @@ class SpeakerService {
 
                     doc.body().getElementsByClass("description")
                             .firstOrNull()?.let {
-                                speaker.bio = it.html()
-                            }
+                        speaker.bio = it.html()
+                    }
                 }
             }
             return speaker
