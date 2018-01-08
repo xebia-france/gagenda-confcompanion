@@ -17,9 +17,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 val rooms = listOf(
-        "Eiffel",
-        "Montmartre",
         "Monceau",
+        "Montmartre",
+        "Haussmann",
+        "Eiffel",
         "3ème",
         "Studio"
 )
