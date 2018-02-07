@@ -48,6 +48,12 @@ fun compute(computeRooms: Boolean? = false) {
     val events = agendaService.getEvents("xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com",
             DateTime(from.time), DateTime(to.time))
             .filter { event ->
+                if (event.summary == "Formation newcomer") {
+                    return@filter false
+                }
+                return@filter true
+            }
+            .filter { event ->
                 event.attendees?.forEach {
                     if (it.email == "allfrance@xebia.fr") {
                         return@filter false
