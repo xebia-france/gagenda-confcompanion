@@ -15,7 +15,12 @@ data class Talk(val conferenceId: String, val fromTime: Date, val id: String, va
             type = "Talk"
         }
 
-        if (Pattern.compile(".*(plénière|tisanes|annonce|pitch|^fondations|new comers|déjeuner).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(plénière|tisanes|annonce|^fondations|new comers|déjeuner).*").matcher(title.toLowerCase()).matches()) {
+            type = "keynote"
+            kind = "keynote"
+        }
+
+        if (title.toLowerCase().indexOf("pitch") == 0 || title.toLowerCase().indexOf("pitch") == title.toLowerCase().length - "pitch".length) {
             type = "keynote"
             kind = "keynote"
         }
