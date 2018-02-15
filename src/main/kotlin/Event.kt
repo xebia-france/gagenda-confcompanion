@@ -10,11 +10,9 @@ val Event.speakers: List<SpeakerTalk>
         try {
             (get(SPEAKERS_GOOGLE_KEY) as ArrayList<EventAttendee>)
                     .forEach {
-                        if (it.displayName != null) {
-                            speakers.add(SpeakerTalk(it.generateSpeakerId(), it.displayName))
-                        } else {
-                            speakers.add(SpeakerTalk(it.generateSpeakerId(), it.generateSpeakerId()))
-                        }
+                        val speaker = SpeakerFetcher.fetch(it.generateSpeakerId())
+
+                        speakers.add(SpeakerTalk(speaker.id, speaker.firstName))
                     }
         } catch (ignored: Exception) {
             // Speaker may have no displayName

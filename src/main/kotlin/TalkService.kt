@@ -19,7 +19,7 @@ import java.util.*
 val rooms = listOf(
         "Monceau",
         "Montmartre",
-        "Haussmann",
+//        "Haussmann",
         "Eiffel",
         "3ème",
         "Studio"
