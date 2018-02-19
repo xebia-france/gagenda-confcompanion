@@ -37,7 +37,7 @@ fun compute(computeRooms: Boolean? = false) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
     val from: Calendar = Calendar.getInstance()
-    from.set(2018, 1, 12, 8, 0)
+    from.set(2018, 2, 12, 8, 0)
 
     val to: Calendar = Calendar.getInstance()
     to.time = from.time

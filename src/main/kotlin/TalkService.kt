@@ -17,12 +17,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 val rooms = listOf(
-        "Monceau",
-        "Montmartre",
-//        "Haussmann",
-        "Eiffel",
-        "3ème",
-        "Studio"
+        "7e - Monceau",
+        "7e - Montmartre",
+//        "7e - Haussmann",
+        "7e - Eiffel",
+        "3e - Salle de vie",
+//        "3e - Bureau commerce",
+        "RDC - Studio grande salle",
+        "RDC - Stark",
+        "RDC - Mezzanine"
 )
 
 class TalkService(val conferenceId: String) {
@@ -57,15 +60,16 @@ class TalkService(val conferenceId: String) {
                 .toList()
                 .blockingGet()
 
+        //for all keynote assign biggest room, except fondations
         talks.filter {
-            it.kind == "keynote" && it.room == null
+            (it.kind == "keynote" && it.room == null) && it.title.toLowerCase() != "fondations"
         }.forEach {
             it.room = rooms.first()
         }
 
-        //only assign rooms to non assigned rooms
+        //only assign rooms to non assigned rooms, except foundations
         var talksToModify = talks.filter {
-            it.room == null
+            it.room == null && it.title.toLowerCase() != "fondations"
         }
 
         //set keynote rooms to biggest

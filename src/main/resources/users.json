@@ -748,5 +748,15 @@
     "file": "sinan_serd.png",
     "name": "Sinan Serdaroglu",
     "gender": "m"
+  },
+  {
+    "file": "Pablo_Lopez.jpg",
+    "name": "Pablo Lopez",
+    "gender": "m"
+  },
+  {
+    "file": "obezzanou.png",
+    "name": "Oussama Bezzanou",
+    "gender": "m"
   }
 ]
