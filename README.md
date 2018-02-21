@@ -2,3 +2,13 @@
 
 # Google Agenda to JSON Converter
 > Convert Google Agenda events to Conf Companion JSON
+
+
+# AWS Secret File Sample
+````{
+  "access_key": "",
+  "secret_key": "",
+  "region": "eu-central-1",
+  "bucketName": "",
+  "scheduleFilePath": "xke/schedule.json"
+}

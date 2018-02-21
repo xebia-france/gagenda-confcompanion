@@ -6,17 +6,24 @@ buildscript {
 
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.3"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
+mainClassName = "AppKt"
+
 repositories {
     mavenCentral()
+    jcenter()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -25,13 +32,24 @@ dependencies {
     def gapi_client_version = '1.23.0'
     def moshi_version = "1.5.0"
 
+    //compile is required for shadowJar
     implementation(
             "com.google.api-client:google-api-client:$gapi_client_version",
             "com.google.oauth-client:google-oauth-client-jetty:$gapi_client_version",
             "com.google.apis:google-api-services-calendar:v3-rev264-1.23.0",
             "io.github.microutils:kotlin-logging:1.4.6",
             "org.slf4j:slf4j-log4j12:1.7.25",
-            "com.squareup.moshi:moshi:$moshi_version")
+            "com.squareup.moshi:moshi:$moshi_version",
+            "com.amazonaws:aws-java-sdk-s3:1.11.236",
+            "org.jsoup:jsoup:1.11.2",
+            "com.github.kittinunf.fuel:fuel:1.12.0",
+            "com.google.firebase:firebase-admin:5.6.0",
+            "com.google.guava:guava:23.5-jre",
+            'io.reactivex.rxjava2:rxjava:2.1.3',
+            'org.threeten:threeten-extra:1.2',
+            "com.amazonaws:aws-lambda-java-core:1.1.0",
+            "com.amazonaws:aws-lambda-java-events:1.3.0",
+            "org.apache.commons:commons-text:1.2")
 }
 
 compileKotlin {

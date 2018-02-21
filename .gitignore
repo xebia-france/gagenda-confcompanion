@@ -11,9 +11,11 @@ gradle-app.setting
 .gradletasknamecache
 
 src/main/resources/client_secret.json
+src/main/resources/firebase_adminsdk.json
 .idea/
 
 credentials/
 out/
 
 schedule.json
+speakers.json
