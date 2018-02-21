@@ -33,7 +33,7 @@ dependencies {
     def moshi_version = "1.5.0"
 
     //compile is required for shadowJar
-    compile(
+    implementation(
             "com.google.api-client:google-api-client:$gapi_client_version",
             "com.google.oauth-client:google-oauth-client-jetty:$gapi_client_version",
             "com.google.apis:google-api-services-calendar:v3-rev264-1.23.0",
