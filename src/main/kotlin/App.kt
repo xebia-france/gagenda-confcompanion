@@ -19,8 +19,10 @@ class Data {
 class AppHandler : RequestHandler<Data, String> {
     override fun handleRequest(input: Data, context: Context?): String {
         if (input.queryStringParameters != null) {
-            println("Compute with computeRooms = ${input.queryStringParameters!!.computeRooms}")
-            compute(input.queryStringParameters!!.computeRooms)
+            input.queryStringParameters?.let { it ->
+                println("Compute with computeRooms = ${it.computeRooms}")
+                compute(it.computeRooms)
+            }
         } else {
             println("Compute with computeRooms = false (no arg provided)")
             compute(false)
