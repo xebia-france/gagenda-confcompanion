@@ -18,11 +18,11 @@ class Data {
 
 class AppHandler : RequestHandler<Data, String> {
     override fun handleRequest(input: Data, context: Context?): String {
-        if (input.queryStringParameters != null) {
-            input.queryStringParameters?.let { it ->
-                println("Compute with computeRooms = ${it.computeRooms}")
-                compute(it.computeRooms)
-            }
+        val parameters = input.queryStringParameters
+
+        if (parameters != null) {
+            println("Compute with computeRooms = ${parameters.computeRooms}")
+            compute(parameters.computeRooms)
         } else {
             println("Compute with computeRooms = false (no arg provided)")
             compute(false)
@@ -79,7 +79,7 @@ fun compute(computeRooms: Boolean? = false) {
         File("/tmp/schedule.json").bufferedWriter().use {
             it.write(scheduleJson)
         }
-        AWSS3Persister().putSchedule("/tmp/schedule.json")
+//        AWSS3Persister().putSchedule("/tmp/schedule.json")
 
 
         val speakerService = SpeakerService()
@@ -88,7 +88,7 @@ fun compute(computeRooms: Boolean? = false) {
         File("/tmp/speakers.json").bufferedWriter().use {
             it.write(speakersJson)
         }
-        AWSS3Persister().putSpeakers("/tmp/speakers.json")
+//        AWSS3Persister().putSpeakers("/tmp/speakers.json")
     }
 }
 
