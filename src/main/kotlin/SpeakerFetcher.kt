@@ -12,7 +12,7 @@ data class XebiaWhoIsSpeaker(var file: String, var name: String, var imageUrl: S
 data class XebiaBlogSpeaker(var firstName: String, var lastName: String, var bio: String)
 
 object SpeakerFetcher {
-    lateinit var localUsers: List<XebiaWhoIsSpeaker>
+    private var localUsers: List<XebiaWhoIsSpeaker>? = null
 
     init {
         loadLocalData()
@@ -93,7 +93,7 @@ object SpeakerFetcher {
 
         for (i in 0..minOf(4, userId.length)) {
             potentialUser = localUsers
-                    .firstOrNull { xebiaUser ->
+                    ?.firstOrNull { xebiaUser ->
                         var a = userId.substring(i).toLowerCase()
                         a = StringUtils.stripAccents(a)
 
