@@ -15,7 +15,7 @@ data class Talk(val conferenceId: String, val fromTime: Date, val id: String, va
             type = "Talk"
         }
 
-        if (Pattern.compile(".*(plénière|tisanes|annonce|^fondations|new comers|déjeuner).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(plénière|tisanes|annonce|^fondations|new comers|déjeuner|newcomers|after xke$).*").matcher(title.toLowerCase()).matches()) {
             type = "keynote"
             kind = "keynote"
         }

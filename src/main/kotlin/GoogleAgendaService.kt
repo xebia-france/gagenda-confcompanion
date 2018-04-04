@@ -18,11 +18,11 @@ import java.io.InputStreamReader
 
 class GoogleAgendaService {
     companion object {
-        val APP_NAME = "Google Agenda to Conf Companion Converter"
+        const val APP_NAME = "Google Agenda to Conf Companion Converter"
+        const val SECRET = "client_secret.json"
+        const val USER = "user"
+        const val OFFLINE = "offline"
         val SCOPES = listOf(CalendarScopes.CALENDAR_READONLY)
-        val SECRET = "client_secret.json"
-        val USER = "user"
-        val OFFLINE = "offline"
     }
 
     private val credentialsDir by lazy {
