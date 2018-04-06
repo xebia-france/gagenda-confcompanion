@@ -2,9 +2,12 @@ import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.google.api.client.util.DateTime
 import mu.KotlinLogging
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import org.jsoup.safety.Whitelist
 
 private val LOG = KotlinLogging.logger {}
 
@@ -35,6 +38,17 @@ fun main(args: Array<String>) {
     compute()
 }
 
+private fun br2nl(html: String?): String? {
+    if (html == null)
+        return html
+    val document = Jsoup.parse(html)
+    document.outputSettings(Document.OutputSettings().prettyPrint(false))//makes html() preserve linebreaks and spacing
+    document.select("br").append("\\n")
+    document.select("p").prepend("\\n\\n")
+    val s = document.html().replace("\\\\n".toRegex(), "\n")
+    return Jsoup.clean(s, "", Whitelist.none(), Document.OutputSettings().prettyPrint(false))
+}
+
 fun compute(computeRooms: Boolean? = false) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
@@ -62,6 +76,9 @@ fun compute(computeRooms: Boolean? = false) {
                     }
                 }
                 return@filter true
+            }.map {
+                it.description = br2nl(it.description)
+                it
             }
 
     if (events.isEmpty()) {
