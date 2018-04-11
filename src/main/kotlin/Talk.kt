@@ -7,7 +7,7 @@ data class Talk(val conferenceId: String, val fromTime: Date, val id: String, va
     var kind: String? = null
 
     init {
-        if (Pattern.compile(".*(handson|codelab|hands'on).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(handson|codelab|hands'on|hands on).*").matcher(title.toLowerCase()).matches()) {
             type = "Hands'On"
         } else if (Pattern.compile(".*(workshop).*").matcher(title.toLowerCase()).matches()) {
             type = "Workshop"
