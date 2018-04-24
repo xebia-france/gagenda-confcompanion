@@ -3,6 +3,14 @@
 # Google Agenda to JSON Converter
 > Convert Google Agenda events to Conf Companion JSON
 
+# HowTo
+
+## Execute
+
+```
+$> ./gradlew --rooms --calendar xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com --from 20180517 --duration 1
+```
+
 
 # Secret files in resources/credentials/
 

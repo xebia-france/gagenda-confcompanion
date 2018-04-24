@@ -1,6 +1,5 @@
-import com.amazonaws.services.lambda.runtime.Context
-import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.google.api.client.util.DateTime
+import com.xenomachina.argparser.ArgParser
 import mu.KotlinLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -9,33 +8,16 @@ import java.text.SimpleDateFormat
 import java.util.*
 import org.jsoup.safety.Whitelist
 
+const val DATE_FORMAT = "yyyyMMdd"
+
+private val DATE_FORMATTER = SimpleDateFormat(DATE_FORMAT)
 private val LOG = KotlinLogging.logger {}
 
-class Data {
-    var queryStringParameters: QueryStringParams? = QueryStringParams()
-
-    class QueryStringParams {
-        var computeRooms: Boolean = false
-    }
-}
-
-class AppHandler : RequestHandler<Data, String> {
-    override fun handleRequest(input: Data, context: Context?): String {
-        val parameters = input.queryStringParameters
-
-        if (parameters != null) {
-            println("Compute with computeRooms = ${parameters.computeRooms}")
-            compute(parameters.computeRooms)
-        } else {
-            println("Compute with computeRooms = false (no arg provided)")
-            compute(false)
-        }
-        return "done"
-    }
-}
-
 fun main(args: Array<String>) {
-    compute()
+    ArgParser(args).parseInto(::AppArgParser).run {
+        LOG.debug { "$rooms $calendar $from $duration" }
+        compute(rooms, calendar, DATE_FORMATTER.parse(from), duration.toInt())
+    }
 }
 
 private fun br2nl(html: String?): String? {
@@ -49,19 +31,23 @@ private fun br2nl(html: String?): String? {
     return Jsoup.clean(s, "", Whitelist.none(), Document.OutputSettings().prettyPrint(false))
 }
 
-fun compute(computeRooms: Boolean? = false) {
+fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
-    val from: Calendar = Calendar.getInstance()
-    from.set(2018, 3, 9, 8, 0)
+    val from = Calendar.getInstance()
+    from.time = fromDay
+    from.set(Calendar.HOUR, 0)
+    from.set(Calendar.MINUTE, 1)
 
-    val to: Calendar = Calendar.getInstance()
+    val to = Calendar.getInstance()
     to.time = from.time
-    to.add(Calendar.HOUR, 12)
+    to.add(Calendar.DATE, durationInDay)
+    to.set(Calendar.HOUR, 23)
+    to.set(Calendar.MINUTE, 59)
 
     val agendaService = GoogleAgendaService()
 
-    val events = agendaService.getEvents("xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com",
+    val events = agendaService.getEvents(calendarId,
             DateTime(from.time), DateTime(to.time))
             .filter { event ->
                 if (event.summary == "Formation newcomer") {
@@ -87,30 +73,30 @@ fun compute(computeRooms: Boolean? = false) {
         val talkService = TalkService(from.generateId("xke"))
         var talks = talkService.convert(events)
 
-        if (computeRooms == true) {
+        if (computeRooms) {
             talks = talkService.computeRooms(talks)
         }
 
         val scheduleJson = talkService.toJson(talks)
 
-        File("/tmp/schedule.json").bufferedWriter().use {
+        File("build/schedule.json").bufferedWriter().use {
             it.write(scheduleJson)
         }
-        AWSS3Persister().putSchedule("/tmp/schedule.json")
+        //AWSS3Persister().putSchedule("build/schedule.json")
 
 
         val speakerService = SpeakerService()
         val speakersJson = speakerService.toJson(speakerService.convert(talks))
 
-        File("/tmp/speakers.json").bufferedWriter().use {
+        File("build/speakers.json").bufferedWriter().use {
             it.write(speakersJson)
         }
-        AWSS3Persister().putSpeakers("/tmp/speakers.json")
+        //AWSS3Persister().putSpeakers("build/speakers.json")
     }
 }
 
 private fun Calendar.generateId(slug: String): String {
-    val dateFormatter = SimpleDateFormat("yyyyMMdd", Locale.FRANCE)
+    val dateFormatter = SimpleDateFormat(DATE_FORMAT, Locale.FRANCE)
 
     return "$slug-${dateFormatter.format(this.time)}"
 }
