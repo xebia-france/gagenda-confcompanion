@@ -1,23 +1,35 @@
 import com.google.api.client.util.DateTime
-import com.xenomachina.argparser.ArgParser
 import mu.KotlinLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.safety.Whitelist
 import java.io.File
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
-import org.jsoup.safety.Whitelist
 
 const val DATE_FORMAT = "yyyyMMdd"
 
 private val DATE_FORMATTER = SimpleDateFormat(DATE_FORMAT)
 private val LOG = KotlinLogging.logger {}
+private val OUTPUT_DIR = Paths.get("build").toAbsolutePath()
 
 fun main(args: Array<String>) {
-    ArgParser(args).parseInto(::AppArgParser).run {
-        LOG.debug { "$rooms $calendar $from $duration" }
-        compute(rooms, calendar, DATE_FORMATTER.parse(from), duration.toInt())
+    val calendarId: String = System.getenv("CALENDAR_ID")
+    val dayFrom: String = System.getenv("DAY_FROM")
+    val duration: String = System.getenv("DURATION")
+    val room: String = System.getenv("ROOM")
+    val s3dir: String = System.getenv("S3_DIR")
+
+    LOG.debug {
+        """
+    CalendarId: $calendarId
+    FromDay: $dayFrom
+    DurationInDays: $duration
+    ComputeRoom: $room"""
     }
+
+    compute(room.toBoolean(), calendarId, DATE_FORMATTER.parse(dayFrom), duration.toInt(), s3dir)
 }
 
 private fun br2nl(html: String?): String? {
@@ -31,7 +43,7 @@ private fun br2nl(html: String?): String? {
     return Jsoup.clean(s, "", Whitelist.none(), Document.OutputSettings().prettyPrint(false))
 }
 
-fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int) {
+fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int, s3dir: String) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
     val from = Calendar.getInstance()
@@ -39,11 +51,14 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
     from.set(Calendar.HOUR, 0)
     from.set(Calendar.MINUTE, 1)
 
+
     val to = Calendar.getInstance()
     to.time = from.time
-    to.add(Calendar.DATE, durationInDay)
+    to.add(Calendar.DATE, durationInDay - 1)
     to.set(Calendar.HOUR, 23)
     to.set(Calendar.MINUTE, 59)
+
+    LOG.debug { "From ${from.time} to ${to.time}" }
 
     val agendaService = GoogleAgendaService()
 
@@ -70,7 +85,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
     if (events.isEmpty()) {
         LOG.debug { "Sorry, but no events found :(" }
     } else {
-        val talkService = TalkService(from.generateId("xke"))
+        val talkService = TalkService(from.generateId("cc"))
         var talks = talkService.convert(events)
 
         if (computeRooms) {
@@ -79,19 +94,27 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
 
         val scheduleJson = talkService.toJson(talks)
 
-        File("build/schedule.json").bufferedWriter().use {
+        File("$OUTPUT_DIR/schedule.json").bufferedWriter().use {
             it.write(scheduleJson)
         }
-        //AWSS3Persister().putSchedule("build/schedule.json")
+        AwsS3Store().putSchedule(s3dir, "build/schedule.json")
 
 
         val speakerService = SpeakerService()
         val speakersJson = speakerService.toJson(speakerService.convert(talks))
 
-        File("build/speakers.json").bufferedWriter().use {
+        File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
             it.write(speakersJson)
         }
-        //AWSS3Persister().putSpeakers("build/speakers.json")
+        AwsS3Store().putSpeakers(s3dir, "build/speakers.json")
+
+        LOG.info {
+            """
+    Output can be found:
+        $OUTPUT_DIR/schedule.json
+        $OUTPUT_DIR/speakers.json
+        """.trimIndent()
+        }
     }
 }
 

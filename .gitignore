@@ -23,3 +23,6 @@ speakers.json
 client_secret.json
 aws_secret.json
 firebase_adminsdk.json
+
+direnv
+.envrc

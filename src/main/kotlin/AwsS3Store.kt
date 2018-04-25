@@ -8,7 +8,7 @@ import com.squareup.moshi.Types
 import okio.Okio
 import java.io.File
 
-class AWSS3Persister {
+class AwsS3Store {
     private var s3Client: AmazonS3
     private var awsConfigurationFile: AWSConfigurationFile
 
@@ -16,7 +16,7 @@ class AWSS3Persister {
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(AWSConfigurationFile::class.java)
 
-        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type).fromJson(Okio.buffer(Okio.source(AWSS3Persister::class.java.getResourceAsStream("credentials/aws_secret.json")))) ?: throw ExceptionInInitializerError("AWS configuration file is missing")
+        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type).fromJson(Okio.buffer(Okio.source(AwsS3Store::class.java.getResourceAsStream("credentials/aws_secret.json")))) ?: throw ExceptionInInitializerError("AWS configuration file is missing")
 
         val credentials = BasicAWSCredentials(awsConfigurationFile.access_key, awsConfigurationFile.secret_key)
         s3Client = AmazonS3ClientBuilder.standard()
@@ -43,14 +43,14 @@ class AWSS3Persister {
 
     }
 
-    fun putSchedule(objectPath: String) {
-        putObject(awsConfigurationFile.scheduleFilePath, objectPath)
+    fun putSchedule(dir: String, src: String) {
+        putObject("$dir/schedule.json", src)
     }
 
-    fun putSpeakers(objectPath: String) {
-        putObject(awsConfigurationFile.speakersFilePath, objectPath)
+    fun putSpeakers(dir: String, src: String) {
+        putObject("$dir/speakers.json", src)
     }
 
 }
 
-data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String, val scheduleFilePath: String, val speakersFilePath: String)
+data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String)

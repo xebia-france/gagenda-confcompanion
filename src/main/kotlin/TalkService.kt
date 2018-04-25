@@ -43,7 +43,7 @@ class TalkService(val conferenceId: String) {
         events.forEachIndexed { index, event ->
             talks.add(Talk(conferenceId,
                     Date(event.start.dateTime.value),
-                    "xke-${event.id}", Date(event.end.dateTime.value),
+                    "cc-${event.id}", Date(event.end.dateTime.value),
                     event.summary,
                     event.speakers,
                     event.description,

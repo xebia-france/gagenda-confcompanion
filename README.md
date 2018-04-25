@@ -5,12 +5,19 @@
 
 # HowTo
 
-## Execute
+## Setup environment variable
+> I use [direnv](https://direnv.net/) to manage my environment.
 
 ```
-$> ./gradlew --rooms --calendar xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com --from 20180517 --duration 1
+export CALENDAR_ID=xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com
+export DAY_FROM=20180517
+export DURATION=1
+export ROOM=false
 ```
 
+```
+$> ./gradlew run
+```
 
 # Secret files in resources/credentials/
 
@@ -23,9 +30,7 @@ $> ./gradlew --rooms --calendar xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calend
   "access_key": "",
   "secret_key": "",
   "region": "eu-central-1",
-  "bucketName": "",
-  "scheduleFilePath": "xke/schedule.json",
-  "speakersFilePath": "xke/speakers.json"
+  "bucketName": ""
 }
 ```
 
