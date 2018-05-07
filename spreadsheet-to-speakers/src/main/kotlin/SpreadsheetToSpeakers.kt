@@ -1,4 +1,8 @@
-
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.*
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
@@ -24,17 +28,22 @@ fun main(args: Array<String>) {
     val spreadsheetId = System.getenv("SPREADSHEET")
     val range = System.getenv("RANGE")
     val schedule = System.getenv("SCHEDULE")
+    val storeDir = System.getenv("S3_DIR")
 
-    val app = SpreadsheetToSpeakers(spreadsheetId, range, schedule)
+    val app = SpreadsheetToSpeakers(spreadsheetId, range, schedule, storeDir)
 
     app.generateSpeakers()
 }
 
-class SpreadsheetToSpeakers(private val spreadsheetId: String, private val range: String, private val scheduleUrl: String) {
+class SpreadsheetToSpeakers(
+        private val spreadsheetId: String,
+        private val range: String,
+        private val scheduleUrl: String,
+        private val storeDir: String) {
 
     companion object {
         const val CREDENTIAL_FOLDER = "credentials"
-        const val CLIENT_SECRET_DIR = "client_secret.json"
+        const val CLIENT_SECRET = "client_secret.json"
         const val ACCESS_TYPE_OFFLINE = "offline"
         const val AUTH_ID = "user"
         val APP_NAME: String = SpreadsheetToSpeakers::class.java.simpleName
@@ -49,6 +58,7 @@ class SpreadsheetToSpeakers(private val spreadsheetId: String, private val range
     private val scheduleAdapter = moshi.adapter<List<Talk>>(scheduleType)
     private val speakersType = Types.newParameterizedType(List::class.java, Speaker::class.java)
     private val speakersAdapter = moshi.adapter<List<Speaker>>(speakersType)
+    private val store = AwsS3Store()
 
     private var schedule: List<Talk>? = null
 
@@ -71,12 +81,16 @@ class SpreadsheetToSpeakers(private val spreadsheetId: String, private val range
                 out.print(speakersAdapter.toJson(speakers))
             }
             LOG.info { "Speakers generated in $BUILD_DIR/speakers.json" }
+            store.putSpeakers(storeDir, "$BUILD_DIR/speakers.json")
+            LOG.info { "Speakers sent to bucket $storeDir" }
             schedule = generateSchedule(speakers)
             LOG.debug { schedule }
             File("$BUILD_DIR/schedule.json").printWriter().use { out ->
                 out.print(scheduleAdapter.toJson(schedule))
             }
             LOG.info { "Schedule generated in $BUILD_DIR/schedule.json" }
+            store.putSchedule(storeDir, "$BUILD_DIR/schedule.json")
+            LOG.info { "Schedule sent to bucket $storeDir" }
         }
     }
 
@@ -151,7 +165,7 @@ class SpreadsheetToSpeakers(private val spreadsheetId: String, private val range
     }
 
     private fun getCredential(): Credential {
-        val s = SpreadsheetToSpeakers::class.java.getResourceAsStream(CLIENT_SECRET_DIR)
+        val s = SpreadsheetToSpeakers::class.java.getResourceAsStream(CLIENT_SECRET)
         val clientSecrets = GoogleClientSecrets.load(factory, InputStreamReader(s))
         val flow = GoogleAuthorizationCodeFlow.Builder(
                 transport, factory, clientSecrets, listOf(SheetsScopes.SPREADSHEETS_READONLY))
@@ -206,4 +220,60 @@ class Speaker {
         }
     }
 }
+
+class AwsS3Store {
+    companion object {
+        const val CLIENT_SECRET = "aws_secret.json"
+        const val CONTENT_TYPE_JSON = "application/json"
+        const val ENCODE_UTF8 = "UTF-8"
+    }
+
+    private var s3Client: AmazonS3? = null
+    private var awsConfigurationFile: AWSConfigurationFile? = null
+
+    init {
+        val moshi = Moshi.Builder().build()
+        val type = Types.newParameterizedType(AWSConfigurationFile::class.java)
+
+        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type)
+                .fromJson(SpreadsheetToSpeakers::class.java.getResource(CLIENT_SECRET).readText())
+
+        awsConfigurationFile?.apply {
+            val credentials = BasicAWSCredentials(access_key, secret_key)
+            s3Client = AmazonS3ClientBuilder.standard()
+                    .withRegion(region)
+                    .withCredentials(AWSStaticCredentialsProvider(credentials))
+                    .build()
+        }
+    }
+
+    private val acl = AccessControlList().apply {
+        grantPermission(GroupGrantee.AllUsers, Permission.Read)
+    }
+
+
+    private fun putObject(remotePath: String, objectPath: String) {
+        val file = File(objectPath)
+        val md = ObjectMetadata()
+        md.contentLength = file.length()
+        md.contentType = CONTENT_TYPE_JSON
+        md.contentEncoding = ENCODE_UTF8
+
+        s3Client?.putObject(
+                PutObjectRequest(awsConfigurationFile?.bucketName, remotePath, File(objectPath).inputStream(), md)
+                        .withAccessControlList(acl))
+
+    }
+
+    fun putSchedule(dir: String, src: String) {
+        putObject("$dir/schedule.json", src)
+    }
+
+    fun putSpeakers(dir: String, src: String) {
+        putObject("$dir/speakers.json", src)
+    }
+
+}
+
+data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String)
 
