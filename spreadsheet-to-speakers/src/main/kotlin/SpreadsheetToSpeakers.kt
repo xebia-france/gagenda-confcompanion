@@ -151,7 +151,7 @@ class SpreadsheetToSpeakers(
     }
 
     private fun dropFirstLines(spreadsheet: List<List<Any>>): List<List<Any>> {
-        return spreadsheet.subList(3, spreadsheet.size)
+        return spreadsheet.subList(1, spreadsheet.size)
     }
 
     private fun getContent(): List<List<Any>>? {
