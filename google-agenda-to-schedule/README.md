@@ -13,6 +13,8 @@ export CALENDAR_ID=xebia.fr_sh679blpn2vkmhk7i1rdllo3t0@group.calendar.google.com
 export DAY_FROM=20180517
 export DURATION=1
 export ROOM=false
+export S3_DIR=xke
+export SPEAKER=true
 ```
 
 ```

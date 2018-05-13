@@ -38,16 +38,26 @@ class TalkService(val conferenceId: String) {
         moshi.adapter<List<Talk>>(type)
     }
 
-    fun convert(events: List<Event>): List<Talk> {
+    fun convert(events: List<Event>, computeSpeaker: Boolean): List<Talk> {
         val talks = mutableListOf<Talk>()
-        events.forEachIndexed { index, event ->
-            talks.add(Talk(conferenceId,
-                    Date(event.start.dateTime.value),
-                    "cc-${event.id}", Date(event.end.dateTime.value),
-                    event.summary,
-                    event.speakers,
-                    event.description,
-                    event.location))
+        events.forEachIndexed { _, event ->
+            if (computeSpeaker) {
+                talks.add(Talk(conferenceId,
+                        Date(event.start.dateTime.value),
+                        "cc-${event.id}", Date(event.end.dateTime.value),
+                        event.summary,
+                        event.speakers,
+                        event.description,
+                        event.location))
+            } else {
+                talks.add(Talk(conferenceId,
+                        Date(event.start.dateTime.value),
+                        "cc-${event.id}", Date(event.end.dateTime.value),
+                        event.summary,
+                        listOf(),
+                        event.description,
+                        event.location))
+            }
         }
         return talks
     }

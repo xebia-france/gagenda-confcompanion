@@ -20,6 +20,7 @@ fun main(args: Array<String>) {
     val duration: String = System.getenv("DURATION")
     val room: String = System.getenv("ROOM")
     val s3dir: String = System.getenv("S3_DIR")
+    val speaker: String = System.getenv("SPEAKER")
 
     LOG.debug {
         """
@@ -29,7 +30,7 @@ fun main(args: Array<String>) {
     ComputeRoom: $room"""
     }
 
-    compute(room.toBoolean(), calendarId, DATE_FORMATTER.parse(dayFrom), duration.toInt(), s3dir)
+    compute(room.toBoolean(), calendarId, DATE_FORMATTER.parse(dayFrom), duration.toInt(), s3dir, speaker.toBoolean())
 }
 
 private fun br2nl(html: String?): String? {
@@ -43,7 +44,7 @@ private fun br2nl(html: String?): String? {
     return Jsoup.clean(s, "", Whitelist.none(), Document.OutputSettings().prettyPrint(false))
 }
 
-fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int, s3dir: String) {
+fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int, s3dir: String, computeSpeaker: Boolean) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
     val from = Calendar.getInstance()
@@ -77,7 +78,9 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
                     }
                 }
                 return@filter true
-            }.map {
+            }
+            .filter { event -> !event.summary.startsWith("DataXDay") }
+            .map {
                 it.description = br2nl(it.description)
                 it
             }
@@ -87,7 +90,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
     } else {
         events.sortedBy { event -> event.location }
         val talkService = TalkService(from.generateId("cc"))
-        var talks = talkService.convert(events)
+        var talks = talkService.convert(events, computeSpeaker)
 
         if (computeRooms) {
             talks = talkService.computeRooms(talks)
@@ -100,21 +103,18 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
         }
         AwsS3Store().putSchedule(s3dir, "build/schedule.json")
 
+        LOG.info { "$OUTPUT_DIR/schedule.json" }
 
-        val speakerService = SpeakerService()
-        val speakersJson = speakerService.toJson(speakerService.convert(talks))
+        if (computeSpeaker) {
+            val speakerService = SpeakerService()
+            val speakersJson = speakerService.toJson(speakerService.convert(talks))
 
-        File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
-            it.write(speakersJson)
-        }
-        AwsS3Store().putSpeakers(s3dir, "build/speakers.json")
+            File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
+                it.write(speakersJson)
+            }
+            AwsS3Store().putSpeakers(s3dir, "build/speakers.json")
 
-        LOG.info {
-            """
-    Output can be found:
-        $OUTPUT_DIR/schedule.json
-        $OUTPUT_DIR/speakers.json
-        """.trimIndent()
+            LOG.info { "$OUTPUT_DIR/speakers.json" }
         }
     }
 }
