@@ -88,13 +88,14 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
     if (events.isEmpty()) {
         LOG.debug { "Sorry, but no events found :(" }
     } else {
-        events.sortedBy { event -> event.location }
         val talkService = TalkService(from.generateId("cc"))
         var talks = talkService.convert(events, computeSpeaker)
 
         if (computeRooms) {
             talks = talkService.computeRooms(talks)
         }
+
+        talks = talks.sortedBy { event -> event.room }
 
         val scheduleJson = talkService.toJson(talks)
 
