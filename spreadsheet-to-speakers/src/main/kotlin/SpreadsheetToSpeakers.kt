@@ -128,7 +128,7 @@ class SpreadsheetToSpeakers(
                 2 -> speaker.bio = value
                 3 -> speaker.tweetHandle = value
                 4 -> speaker.imageURL = value
-                5 -> {
+                5, 6 -> {
                     val talk = buildTalk(value)
                     if (talk != null) {
                         speaker.talks.add(talk)
