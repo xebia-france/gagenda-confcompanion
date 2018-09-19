@@ -2,45 +2,51 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.*
+import com.amazonaws.services.s3.model.CannedAccessControlList
+import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.services.s3.model.PutObjectRequest
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import okio.Okio
 import java.io.File
 
 class AwsS3Store {
-    private var s3Client: AmazonS3
-    private var awsConfigurationFile: AWSConfigurationFile
+    companion object {
+        const val CLIENT_SECRET = "credentials/aws_secret.json"
+        const val CONTENT_TYPE_JSON = "application/json"
+        const val ENCODE_UTF8 = "UTF-8"
+    }
+
+    private var s3: AmazonS3? = null
+    private var config: AWSConfigurationFile? = null
 
     init {
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(AWSConfigurationFile::class.java)
 
-        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type).fromJson(Okio.buffer(Okio.source(AwsS3Store::class.java.getResourceAsStream("credentials/aws_secret.json")))) ?: throw ExceptionInInitializerError("AWS configuration file is missing")
+        config = moshi.adapter<AWSConfigurationFile>(type)
+                .fromJson(AwsS3Store::class.java.getResource(CLIENT_SECRET).readText())
 
-        val credentials = BasicAWSCredentials(awsConfigurationFile.access_key, awsConfigurationFile.secret_key)
-        s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(awsConfigurationFile.region)
-                .withCredentials(AWSStaticCredentialsProvider(credentials))
-                .build()
+        config?.apply {
+            val credentials = BasicAWSCredentials(access_key, secret_key)
+            s3 = AmazonS3ClientBuilder.standard()
+                    .withRegion(region)
+                    .withCredentials(AWSStaticCredentialsProvider(credentials))
+                    .build()
+        }
     }
 
-    private val acl = AccessControlList().apply {
-        grantPermission(GroupGrantee.AllUsers, Permission.Read)
-    }
+    private fun putObject(filename: String, filePath: String) {
+        val file = File(filePath)
 
-
-    private fun putObject(remotePath: String, objectPath: String) {
-        val file = File(objectPath)
         val md = ObjectMetadata()
         md.contentLength = file.length()
-        md.contentType = "application/json"
-        md.contentEncoding = "UTF-8"
+        md.contentType = CONTENT_TYPE_JSON
+        md.contentEncoding = ENCODE_UTF8
 
-        s3Client.putObject(
-                PutObjectRequest(awsConfigurationFile.bucketName, remotePath, File(objectPath).inputStream(), md)
-                        .withAccessControlList(acl))
-
+        config?.run {
+            val putObjectRequest = PutObjectRequest(bucketName, filename, file.inputStream(), md)
+            s3?.putObject(putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead))
+        }
     }
 
     fun putSchedule(dir: String, src: String) {
@@ -50,7 +56,6 @@ class AwsS3Store {
     fun putSpeakers(dir: String, src: String) {
         putObject("$dir/speakers.json", src)
     }
-
 }
 
 data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String)

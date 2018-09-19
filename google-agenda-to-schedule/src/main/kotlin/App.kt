@@ -71,6 +71,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
                 }
                 return@filter true
             }
+            .filter { event -> event.summary != "XKE" }
             .filter { event ->
                 event.attendees?.forEach {
                     if (it.email == "allfrance@xebia.fr") {

@@ -2,7 +2,9 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.*
+import com.amazonaws.services.s3.model.CannedAccessControlList
+import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.services.s3.model.PutObjectRequest
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
@@ -228,41 +230,37 @@ class AwsS3Store {
         const val ENCODE_UTF8 = "UTF-8"
     }
 
-    private var s3Client: AmazonS3? = null
-    private var awsConfigurationFile: AWSConfigurationFile? = null
+    private var s3: AmazonS3? = null
+    private var config: AWSConfigurationFile? = null
 
     init {
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(AWSConfigurationFile::class.java)
 
-        awsConfigurationFile = moshi.adapter<AWSConfigurationFile>(type)
-                .fromJson(SpreadsheetToSpeakers::class.java.getResource(CLIENT_SECRET).readText())
+        config = moshi.adapter<AWSConfigurationFile>(type)
+                .fromJson(AwsS3Store::class.java.getResource(CLIENT_SECRET).readText())
 
-        awsConfigurationFile?.apply {
+        config?.apply {
             val credentials = BasicAWSCredentials(access_key, secret_key)
-            s3Client = AmazonS3ClientBuilder.standard()
+            s3 = AmazonS3ClientBuilder.standard()
                     .withRegion(region)
                     .withCredentials(AWSStaticCredentialsProvider(credentials))
                     .build()
         }
     }
 
-    private val acl = AccessControlList().apply {
-        grantPermission(GroupGrantee.AllUsers, Permission.Read)
-    }
+    private fun putObject(filename: String, filePath: String) {
+        val file = File(filePath)
 
-
-    private fun putObject(remotePath: String, objectPath: String) {
-        val file = File(objectPath)
         val md = ObjectMetadata()
         md.contentLength = file.length()
         md.contentType = CONTENT_TYPE_JSON
         md.contentEncoding = ENCODE_UTF8
 
-        s3Client?.putObject(
-                PutObjectRequest(awsConfigurationFile?.bucketName, remotePath, File(objectPath).inputStream(), md)
-                        .withAccessControlList(acl))
-
+        config?.run {
+            val putObjectRequest = PutObjectRequest(bucketName, filename, file.inputStream(), md)
+            s3?.putObject(putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead))
+        }
     }
 
     fun putSchedule(dir: String, src: String) {
@@ -272,7 +270,6 @@ class AwsS3Store {
     fun putSpeakers(dir: String, src: String) {
         putObject("$dir/speakers.json", src)
     }
-
 }
 
 data class AWSConfigurationFile(val access_key: String, val secret_key: String, val region: String, val bucketName: String)
