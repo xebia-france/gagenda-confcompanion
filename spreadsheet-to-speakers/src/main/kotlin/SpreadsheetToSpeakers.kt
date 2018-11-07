@@ -190,6 +190,7 @@ data class Talk(
         val toTime: String,
         val type: String,
         val room: String,
+        val track: String,
         val summary: String)
 
 data class SpeakerTalk(val id: String, val title: String)
