@@ -28,7 +28,7 @@ val rooms = listOf(
         "RDC - Mezzanine"
 )
 
-class TalkService(val conferenceId: String) {
+class TalkService(private val conferenceId: String) {
 
     private val type = Types.newParameterizedType(List::class.java, Talk::class.java)
     private val moshi by lazy {

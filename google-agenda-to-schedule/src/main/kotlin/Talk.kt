@@ -32,20 +32,18 @@ data class Talk(val conferenceId: String,
         }
 
         if (summary != null) {
-            when {
-                summary.contains("#rex", true) -> type = "REX"
-                summary.contains("#hands-on", true) -> type = "Hands'On"
+            if (summary.contains("#rex", true)) type = "REX"
+            if (summary.contains("#hands-on", true)) type = "Hands'On"
 
-                summary.contains("#devops", true) -> track = "DevOps"
-                summary.contains("#front", true) -> track = "Front"
-                summary.contains("#agile", true) -> track = "Agile"
-                summary.contains("#back", true) -> track = "Back"
-                summary.contains("#data", true) -> track = "Data"
-                summary.contains("#mobile", true) -> track = "Mobile"
-                summary.contains("#cloud", true) -> track = "Cloud"
-                summary.contains("#iot", true) -> track = "IoT"
-                summary.contains("#craft", true) -> track = "Craft"
-            }
+            if (summary.contains("#devops", true)) track = "DevOps"
+            if (summary.contains("#front", true)) track = "Front"
+            if (summary.contains("#agile", true)) track = "Agile"
+            if (summary.contains("#back", true)) track = "Back"
+            if (summary.contains("#data", true)) track = "Data"
+            if (summary.contains("#mobile", true)) track = "Mobile"
+            if (summary.contains("#cloud", true)) track = "Cloud"
+            if (summary.contains("#iot", true)) track = "IoT"
+            if (summary.contains("#craft", true)) track = "Craft"
         }
     }
 }
