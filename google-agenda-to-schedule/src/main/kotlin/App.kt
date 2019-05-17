@@ -21,16 +21,20 @@ fun main(args: Array<String>) {
     val room: String = System.getenv("ROOM")
     val s3dir: String = System.getenv("S3_DIR")
     val speaker: String = System.getenv("SPEAKER")
+    val local: String = System.getenv("LOCAL")
 
     LOG.debug {
         """
     CalendarId: $calendarId
     FromDay: $dayFrom
     DurationInDays: $duration
-    ComputeRoom: $room"""
+    ComputeRoom: $room
+    Local (no S3 upload): $local"""
     }
 
-    compute(room.toBoolean(), calendarId, DATE_FORMATTER.parse(dayFrom), duration.toInt(), s3dir, speaker.toBoolean())
+    val store = if (local.toBoolean()) NoStore() else AwsS3Store()
+
+    compute(room.toBoolean(), calendarId, DATE_FORMATTER.parse(dayFrom), duration.toInt(), s3dir, speaker.toBoolean(), store)
 }
 
 private fun br2nl(html: String?): String? {
@@ -44,7 +48,13 @@ private fun br2nl(html: String?): String? {
     return Jsoup.clean(s, "", Whitelist.none(), Document.OutputSettings().prettyPrint(false))
 }
 
-fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationInDay: Int, s3dir: String, computeSpeaker: Boolean) {
+fun compute(computeRooms: Boolean,
+            calendarId: String,
+            fromDay: Date,
+            durationInDay: Int,
+            s3dir: String,
+            computeSpeaker: Boolean,
+            store: Store) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"))
 
     val from = Calendar.getInstance()
@@ -65,6 +75,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
 
     val events = agendaService.getEvents(calendarId,
             DateTime(from.time), DateTime(to.time))
+            .asSequence()
             .filter { event ->
                 if (event.summary == "Formation newcomer") {
                     return@filter false
@@ -85,6 +96,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
                 it.description = br2nl(it.description)
                 it
             }
+            .toList()
 
     if (events.isEmpty()) {
         LOG.debug { "Sorry, but no events found :(" }
@@ -103,7 +115,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
         File("$OUTPUT_DIR/schedule.json").bufferedWriter().use {
             it.write(scheduleJson)
         }
-        AwsS3Store().putSchedule(s3dir, "build/schedule.json")
+        store.putSchedule(s3dir, "build/schedule.json")
 
         LOG.info { "$OUTPUT_DIR/schedule.json" }
 
@@ -114,7 +126,7 @@ fun compute(computeRooms: Boolean, calendarId: String, fromDay: Date, durationIn
             File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
                 it.write(speakersJson)
             }
-            AwsS3Store().putSpeakers(s3dir, "build/speakers.json")
+            store.putSpeakers(s3dir, "build/speakers.json")
 
             LOG.info { "$OUTPUT_DIR/speakers.json" }
         }

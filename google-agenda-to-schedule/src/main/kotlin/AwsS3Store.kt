@@ -9,7 +9,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import java.io.File
 
-class AwsS3Store {
+class AwsS3Store : Store {
     companion object {
         const val CLIENT_SECRET = "credentials/aws_secret.json"
         const val CONTENT_TYPE_JSON = "application/json"
@@ -49,11 +49,11 @@ class AwsS3Store {
         }
     }
 
-    fun putSchedule(dir: String, src: String) {
+    override fun putSchedule(dir: String, src: String) {
         putObject("$dir/schedule.json", src)
     }
 
-    fun putSpeakers(dir: String, src: String) {
+    override fun putSpeakers(dir: String, src: String) {
         putObject("$dir/speakers.json", src)
     }
 }
