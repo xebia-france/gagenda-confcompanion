@@ -10,32 +10,25 @@ data class Talk(val conferenceId: String,
                 val summary: String?,
                 var room: String?) {
 
-
-    val HANDS_ON_PATTERN = ".*(hands-on|handson|codelab|hands'on|hands on).*"
-    val WORKSHOP_PATTERN = ".*(workshop).*"
-    val KEYNOTE_PATTERN = ".*(closing|evening party|lunch|afternoon break|morning break|breakfast|plénière|tisanes|annonce|^fondations|new comers|déjeuner|newcomers|after xke$|^welcoming|^opening|keynote|^break$|^lunch|^cocktail|^pause|^pitch|pitch$).*"
-    val HANDS_ON_LABEL = "Hands-on"
-    val WORKSHOP_LABEL = "Workshop"
-    val TALK_LABEL = "Talk"
-    val KEYNOTE_LABEL = "keynote"
-    val KEYNOTE_KIND = "keynote"
-
     var type: String = ""
     var kind: String? = null
     var track: String? = null
 
     init {
-        val lowerCaseTitle = title.toLowerCase()
-
         type = when {
-            matchesPattern(HANDS_ON_PATTERN, lowerCaseTitle) -> HANDS_ON_LABEL
-            matchesPattern(WORKSHOP_PATTERN, lowerCaseTitle) -> WORKSHOP_LABEL
-            else -> TALK_LABEL
+            Pattern.compile(".*(handson|codelab|hands'on|hands on).*").matcher(title.toLowerCase()).matches() -> "Hands'On"
+            Pattern.compile(".*(workshop).*").matcher(title.toLowerCase()).matches() -> "Workshop"
+            else -> "Talk"
         }
 
-        if (matchesPattern(KEYNOTE_PATTERN, lowerCaseTitle)) {
-            type = KEYNOTE_LABEL
-            kind = KEYNOTE_KIND
+        if (Pattern.compile(".*(closing|evening party|lunch|afternoon break|morning break|breakfast|plénière|tisanes|annonce|^fondations|new comers|déjeuner|newcomers|after xke$|^welcoming|^opening|keynote|^break$|^lunch|^cocktail|^pause).*").matcher(title.toLowerCase()).matches()) {
+            type = "keynote"
+            kind = "keynote"
+        }
+
+        if (title.toLowerCase().indexOf("pitch") == 0 || title.toLowerCase().indexOf("pitch") == title.toLowerCase().length - "pitch".length) {
+            type = "keynote"
+            kind = "keynote"
         }
 
         if (summary != null) {
@@ -53,7 +46,4 @@ data class Talk(val conferenceId: String,
             if (summary.contains("#craft", true)) track = "Craft"
         }
     }
-
-    private fun matchesPattern(pattern: String, string: String) =
-            Pattern.compile(pattern).matcher(string).matches()
 }
