@@ -16,17 +16,42 @@ data class Talk(val conferenceId: String,
 
     init {
         type = when {
-            Pattern.compile(".*(handson|codelab|hands'on|hands on).*").matcher(title.toLowerCase()).matches() -> "Hands'On"
-            Pattern.compile(".*(workshop).*").matcher(title.toLowerCase()).matches() -> "Workshop"
-            else -> "Talk"
+            Pattern.compile(".*(handson|codelab|hands'on|hands on).*").matcher(title.toLowerCase()).matches() -> "hands'on"
+            Pattern.compile(".*(workshop).*").matcher(title.toLowerCase()).matches() -> "workshop"
+            else -> "talk"
         }
 
-        if (Pattern.compile(".*(closing|evening party|lunch|afternoon break|morning break|breakfast|plénière|tisanes|annonce|^fondations|new comers|déjeuner|newcomers|after xke$|^welcoming|^opening|keynote|^break$|^lunch|^cocktail|^pause).*").matcher(title.toLowerCase()).matches()) {
-            type = "keynote"
+        if (Pattern.compile(".*(^closing).*").matcher(title.toLowerCase()).matches()) {
+            type = "closing"
             kind = "keynote"
         }
 
-        if (title.toLowerCase().indexOf("pitch") == 0 || title.toLowerCase().indexOf("pitch") == title.toLowerCase().length - "pitch".length) {
+        if (Pattern.compile(".*(evening party|after xke$|^cocktail|tisanes).*").matcher(title.toLowerCase()).matches()) {
+            type = "party"
+            kind = "keynote"
+        }
+
+        if (Pattern.compile(".*(lunch|déjeuner).*").matcher(title.toLowerCase()).matches()) {
+            type = "lunch"
+            kind = "keynote"
+        }
+
+        if (Pattern.compile(".*(^welcoming|^opening|opening$).*").matcher(title.toLowerCase()).matches()) {
+            type = "opening"
+            kind = "keynote"
+        }
+
+        if (Pattern.compile(".*(breakfast).*").matcher(title.toLowerCase()).matches()) {
+            type = "breakfast"
+            kind = "keynote"
+        }
+
+        if (Pattern.compile(".*(meet and greet|afternoon break|morning break|^break$|^pause).*").matcher(title.toLowerCase()).matches()) {
+            type = "break"
+            kind = "keynote"
+        }
+
+        if (Pattern.compile(".*(plénière|annonce|^fondations|new comers|newcomers|keynote).*").matcher(title.toLowerCase()).matches()) {
             type = "keynote"
             kind = "keynote"
         }
@@ -40,10 +65,15 @@ data class Talk(val conferenceId: String,
             if (summary.contains("#agile", true)) track = "Agile"
             if (summary.contains("#back", true)) track = "Back"
             if (summary.contains("#data", true)) track = "Data"
+            if (summary.contains("#data", true)) track = "Data"
             if (summary.contains("#mobile", true)) track = "Mobile"
             if (summary.contains("#cloud", true)) track = "Cloud"
             if (summary.contains("#iot", true)) track = "IoT"
             if (summary.contains("#craft", true)) track = "Craft"
+            // DataXDay 2019
+            if (summary.contains("#dataIntimacy", true)) track = "DataIntimacy"
+            if (summary.contains("#reactiveFirst", true)) track = "ReactiveFirst"
+            if (summary.contains("#mlDoneRight", true)) track = "MLDoneRight"
         }
     }
 }

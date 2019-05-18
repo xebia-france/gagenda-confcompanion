@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
     val room: String = System.getenv("ROOM")
     val s3dir: String = System.getenv("S3_DIR")
     val speaker: String = System.getenv("SPEAKER")
-    val local: String = System.getenv("LOCAL")
+    val local: String = System.getenv("LOCAL") ?: "false"
 
     LOG.debug {
         """
