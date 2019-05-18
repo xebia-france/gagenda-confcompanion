@@ -45,7 +45,7 @@ class SpreadsheetToSpeakers(
 
     companion object {
         const val CREDENTIAL_FOLDER = "credentials"
-        const val CLIENT_SECRET = "client_secret.json"
+        const val CLIENT_SECRET = "credentials/client_secret.json"
         const val ACCESS_TYPE_OFFLINE = "offline"
         const val AUTH_ID = "user"
         val APP_NAME: String = SpreadsheetToSpeakers::class.java.simpleName
@@ -226,7 +226,7 @@ class Speaker {
 
 class AwsS3Store {
     companion object {
-        const val CLIENT_SECRET = "aws_secret.json"
+        const val CLIENT_SECRET = "credentials/aws_secret.json"
         const val CONTENT_TYPE_JSON = "application/json"
         const val ENCODE_UTF8 = "UTF-8"
     }
