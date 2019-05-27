@@ -21,7 +21,7 @@ data class Talk(val conferenceId: String,
             else -> "talk"
         }
 
-        if (Pattern.compile(".*(^closing).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(^closing|clôture$).*").matcher(title.toLowerCase()).matches()) {
             type = "closing"
             kind = "keynote"
         }
@@ -36,7 +36,7 @@ data class Talk(val conferenceId: String,
             kind = "keynote"
         }
 
-        if (Pattern.compile(".*(^welcoming|^opening|opening$).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(^welcoming|^opening|opening$|^accueil|mot des organisateurs).*").matcher(title.toLowerCase()).matches()) {
             type = "opening"
             kind = "keynote"
         }
@@ -46,7 +46,7 @@ data class Talk(val conferenceId: String,
             kind = "keynote"
         }
 
-        if (Pattern.compile(".*(meet and greet|afternoon break|morning break|^break$|^pause).*").matcher(title.toLowerCase()).matches()) {
+        if (Pattern.compile(".*(meet and greet|afternoon break|morning break|^break$|^pause|^encas).*").matcher(title.toLowerCase()).matches()) {
             type = "break"
             kind = "keynote"
         }
