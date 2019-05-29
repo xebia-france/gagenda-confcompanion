@@ -21,7 +21,7 @@ val rooms = listOf(
         "7e - Montmartre",
         "7e - Haussmann",
         "7e - Eiffel",
-        "3e - Salle de vie",
+//        "3e - Salle de vie",
 //        "3e - Bureau commerce",
         "RDC - Studio grande salle",
         "RDC - Stark",
