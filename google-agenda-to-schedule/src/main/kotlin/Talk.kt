@@ -15,45 +15,47 @@ data class Talk(val conferenceId: String,
     var track: String? = null
 
     init {
+        // TODO extract this in appropriate type
+        val HANDS_ON_PATTERN = ".*(hands-on|handson|codelab|hands'on|hands on).*"
+        val HANDS_ON_LABEL = "hands-on"
+        val WORKSHOP_PATTERN = ".*(workshop).*"
+        val WORKSHOP_LABEL = "workshop"
+        val TALK_LABEL = "talk"
+        val KEYNOTE_LABEL = "keynote"
+        val KEYNOTE_KIND = "keynote"
+        val CLOSING_PATTERN = ".*(^closing|clôture$).*"
+        val CLOSING_LABEL = "closing"
+        val PARTY_PATTERN = ".*(evening party|after xke$|^cocktail|tisanes).*"
+        val PARTY_LABEL = "party"
+        val LUNCH_PATTERN = ".*(lunch|déjeuner).*"
+        val LUNCH_LABEL = "lunch"
+        val OPENING_PATTERN = ".*(^welcoming|^opening|opening$|^accueil|mot des organisateurs).*"
+        val OPENING_LABEL = "opening"
+        val BREAKFAST_PATTERN = ".*(breakfast).*"
+        val BREAKFAST_LABEL = "breakfast"
+        val BREAK_PATTERN = ".*(meet and greet|afternoon break|morning break|^break$|^pause|^encas).*"
+        val BREAK_LABEL = "break"
+        val KEYNOTE_PATTERN = ".*(plénière|annonce|^fondations|new comers|newcomers|keynote).*"
+
+        val GENERAL_KEYNOTE_PATTERN = listOf(CLOSING_PATTERN, PARTY_PATTERN, LUNCH_PATTERN, OPENING_PATTERN, BREAKFAST_PATTERN, BREAK_PATTERN, KEYNOTE_PATTERN).joinToString("|")
+
+        val lowerCaseTitle = title.toLowerCase()
+
         type = when {
-            Pattern.compile(".*(handson|codelab|hands'on|hands on).*").matcher(title.toLowerCase()).matches() -> "hands'on"
-            Pattern.compile(".*(workshop).*").matcher(title.toLowerCase()).matches() -> "workshop"
-            else -> "talk"
+            matchesPattern(HANDS_ON_PATTERN, lowerCaseTitle) -> HANDS_ON_LABEL
+            matchesPattern(WORKSHOP_PATTERN, lowerCaseTitle) -> WORKSHOP_LABEL
+            matchesPattern(CLOSING_PATTERN, lowerCaseTitle) -> CLOSING_LABEL
+            matchesPattern(PARTY_PATTERN, lowerCaseTitle) -> PARTY_LABEL
+            matchesPattern(LUNCH_PATTERN, lowerCaseTitle) -> LUNCH_LABEL
+            matchesPattern(OPENING_PATTERN, lowerCaseTitle) -> OPENING_LABEL
+            matchesPattern(BREAKFAST_PATTERN, lowerCaseTitle) -> BREAKFAST_LABEL
+            matchesPattern(BREAK_PATTERN, lowerCaseTitle) -> BREAK_LABEL
+            matchesPattern(KEYNOTE_PATTERN, lowerCaseTitle) -> KEYNOTE_LABEL
+            else -> TALK_LABEL
         }
 
-        if (Pattern.compile(".*(^closing|clôture$).*").matcher(title.toLowerCase()).matches()) {
-            type = "closing"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(evening party|after xke$|^cocktail|tisanes).*").matcher(title.toLowerCase()).matches()) {
-            type = "party"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(lunch|déjeuner).*").matcher(title.toLowerCase()).matches()) {
-            type = "lunch"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(^welcoming|^opening|opening$|^accueil|mot des organisateurs).*").matcher(title.toLowerCase()).matches()) {
-            type = "opening"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(breakfast).*").matcher(title.toLowerCase()).matches()) {
-            type = "breakfast"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(meet and greet|afternoon break|morning break|^break$|^pause|^encas).*").matcher(title.toLowerCase()).matches()) {
-            type = "break"
-            kind = "keynote"
-        }
-
-        if (Pattern.compile(".*(plénière|annonce|^fondations|new comers|newcomers|keynote).*").matcher(title.toLowerCase()).matches()) {
-            type = "keynote"
-            kind = "keynote"
+        if (matchesPattern(GENERAL_KEYNOTE_PATTERN, lowerCaseTitle)) {
+            kind = KEYNOTE_KIND
         }
 
         if (summary != null) {
@@ -76,4 +78,7 @@ data class Talk(val conferenceId: String,
             if (summary.contains("#mlDoneRight", true)) track = "MLDoneRight"
         }
     }
+
+    private fun matchesPattern(pattern: String, string: String) =
+            Pattern.compile(pattern).matcher(string).matches()
 }
