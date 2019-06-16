@@ -61,12 +61,12 @@ data class Talk(val conferenceId: String,
         if (summary != null) {
             if (summary.contains("#rex", true)) type = "REX"
             if (summary.contains("#hands-on", true)) type = "Hands'On"
+            if (summary.contains("#workshop", true)) type = "Workshop"
 
             if (summary.contains("#devops", true)) track = "DevOps"
             if (summary.contains("#front", true)) track = "Front"
             if (summary.contains("#agile", true)) track = "Agile"
             if (summary.contains("#back", true)) track = "Back"
-            if (summary.contains("#data", true)) track = "Data"
             if (summary.contains("#data", true)) track = "Data"
             if (summary.contains("#mobile", true)) track = "Mobile"
             if (summary.contains("#cloud", true)) track = "Cloud"
