@@ -14,7 +14,7 @@ private val DATE_FORMATTER = SimpleDateFormat(DATE_FORMAT)
 private val LOG = KotlinLogging.logger {}
 private val OUTPUT_DIR = Paths.get("build").toAbsolutePath()
 
-fun main(args: Array<String>) {
+fun main() {
     val calendarId: String = System.getenv("CALENDAR_ID")
     val dayFrom: String = System.getenv("DAY_FROM")
     val duration: String = System.getenv("DURATION")
@@ -119,17 +119,17 @@ fun compute(computeRooms: Boolean,
 
         LOG.info { "$OUTPUT_DIR/schedule.json" }
 
-        if (computeSpeaker) {
-            val speakerService = SpeakerService()
-            val speakersJson = speakerService.toJson(speakerService.convert(talks))
-
-            File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
-                it.write(speakersJson)
-            }
-            store.putSpeakers(s3dir, "build/speakers.json")
-
-            LOG.info { "$OUTPUT_DIR/speakers.json" }
-        }
+//        if (computeSpeaker) {
+//            val speakerService = SpeakerService()
+//            val speakersJson = speakerService.toJson(speakerService.convert(talks))
+//
+//            File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
+//                it.write(speakersJson)
+//            }
+//            store.putSpeakers(s3dir, "build/speakers.json")
+//
+//            LOG.info { "$OUTPUT_DIR/speakers.json" }
+//        }
     }
 }
 
