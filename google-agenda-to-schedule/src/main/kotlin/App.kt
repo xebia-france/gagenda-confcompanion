@@ -1,35 +1,49 @@
+import agenda.GoogleAgendaService
 import com.google.api.client.util.DateTime
 import mu.KotlinLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.safety.Whitelist
+import speaker.SpeakerService
+import storage.AwsS3Store
+import storage.NoStore
+import storage.Store
+import talk.TalkService
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
 const val DATE_FORMAT = "yyyyMMdd"
+const val CALENDAR_ID = "CALENDAR_ID"
+const val DAY_FROM = "DAY_FROM"
+const val DURATION = "DURATION"
+const val ROOM = "ROOM"
+const val S3_DIR = "S3_DIR"
+const val SPEAKER = "SPEAKER"
+const val LOCAL = "LOCAL"
 
-private val DATE_FORMATTER = SimpleDateFormat(DATE_FORMAT)
-private val LOG = KotlinLogging.logger {}
-private val OUTPUT_DIR = Paths.get("build").toAbsolutePath()
+val DATE_FORMATTER = SimpleDateFormat(DATE_FORMAT, Locale.FRANCE)
+val LOG = KotlinLogging.logger {}
+val OUTPUT_DIR: Path = Paths.get("build").toAbsolutePath()
 
 fun main() {
-    val calendarId: String = System.getenv("CALENDAR_ID")
-    val dayFrom: String = System.getenv("DAY_FROM")
-    val duration: String = System.getenv("DURATION")
-    val room: String = System.getenv("ROOM")
-    val s3dir: String = System.getenv("S3_DIR")
-    val speaker: String = System.getenv("SPEAKER")
-    val local: String = System.getenv("LOCAL") ?: "false"
+    val calendarId: String = System.getenv(CALENDAR_ID)
+    val dayFrom: String = System.getenv(DAY_FROM)
+    val duration: String = System.getenv(DURATION)
+    val room: String = System.getenv(ROOM)
+    val s3dir: String = System.getenv(S3_DIR)
+    val speaker: String = System.getenv(SPEAKER)
+    val local: String = System.getenv(LOCAL) ?: "false"
 
     LOG.debug {
         """
-    CalendarId: $calendarId
-    FromDay: $dayFrom
-    DurationInDays: $duration
-    ComputeRoom: $room
-    Local (no S3 upload): $local"""
+    $CALENDAR_ID: $calendarId
+    $DAY_FROM: $dayFrom
+    $DURATION: $duration
+    $ROOM: $room
+    $LOCAL (no S3 upload): $local"""
     }
 
     val store = if (local.toBoolean()) NoStore() else AwsS3Store()
@@ -76,13 +90,8 @@ fun compute(computeRooms: Boolean,
     val events = agendaService.getEvents(calendarId,
             DateTime(from.time), DateTime(to.time))
             .asSequence()
-            .filter { event ->
-                if (event.summary == "Formation newcomer") {
-                    return@filter false
-                }
-                return@filter true
-            }
             .filter { event -> event.summary != "XKE" }
+            .filter { event -> !event.summary.startsWith("DataXDay") }
             .filter { event ->
                 event.attendees?.forEach {
                     if (it.email == "allfrance@xebia.fr") {
@@ -91,7 +100,6 @@ fun compute(computeRooms: Boolean,
                 }
                 return@filter true
             }
-            .filter { event -> !event.summary.startsWith("DataXDay") }
             .map {
                 it.description = br2nl(it.description)
                 it
@@ -119,22 +127,19 @@ fun compute(computeRooms: Boolean,
 
         LOG.info { "$OUTPUT_DIR/schedule.json" }
 
-//        if (computeSpeaker) {
-//            val speakerService = SpeakerService()
-//            val speakersJson = speakerService.toJson(speakerService.convert(talks))
-//
-//            File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
-//                it.write(speakersJson)
-//            }
-//            store.putSpeakers(s3dir, "build/speakers.json")
-//
-//            LOG.info { "$OUTPUT_DIR/speakers.json" }
-//        }
+        if (computeSpeaker) {
+            val speakerService = SpeakerService()
+            val speakersJson = speakerService.toJson(speakerService.convert(talks))
+
+            File("$OUTPUT_DIR/agenda.getSpeakers.json").bufferedWriter().use {
+                it.write(speakersJson)
+            }
+            store.putSpeakers(s3dir, "build/agenda.getSpeakers.json")
+
+            LOG.info { "$OUTPUT_DIR/agenda.getSpeakers.json" }
+        }
     }
 }
 
-private fun Calendar.generateId(slug: String): String {
-    val dateFormatter = SimpleDateFormat(DATE_FORMAT, Locale.FRANCE)
-
-    return "$slug-${dateFormatter.format(this.time)}"
-}
+fun Calendar.generateId(slug: String): String =
+        "$slug-${DATE_FORMATTER.format(this.time)}"
