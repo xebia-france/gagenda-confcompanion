@@ -131,12 +131,12 @@ fun compute(computeRooms: Boolean,
             val speakerService = SpeakerService()
             val speakersJson = speakerService.toJson(speakerService.convert(talks))
 
-            File("$OUTPUT_DIR/agenda.getSpeakers.json").bufferedWriter().use {
+            File("$OUTPUT_DIR/speakers.json").bufferedWriter().use {
                 it.write(speakersJson)
             }
-            store.putSpeakers(s3dir, "build/agenda.getSpeakers.json")
+            store.putSpeakers(s3dir, "build/speakers.json")
 
-            LOG.info { "$OUTPUT_DIR/agenda.getSpeakers.json" }
+            LOG.info { "$OUTPUT_DIR/speakers.json" }
         }
     }
 }
