@@ -20,15 +20,16 @@ class SpeakerService {
     val speakers = mutableSetOf<Speaker>()
     events.forEach { talk ->
       talk.speakers?.forEach { speakerTalk ->
-        speakers.add(Speaker(
-          id = speakerTalk.id,
-          firstName = speakerTalk.name,
-          imageURL = "https://www.gravatar.com/avatar/${speakerTalk.id.hash()}?s=400"
-        ))
-        speakers.filter { speaker -> speakerTalk.id == speaker.id }
-          .forEach { speaker ->
-            speaker.talks.add(talk)
-          }
+        var speaker = speakers.find { s -> s.id == speakerTalk.id }
+        if (speaker == null) {
+          speaker = Speaker(
+            id = speakerTalk.id,
+            firstName = speakerTalk.name,
+            imageURL = "https://www.gravatar.com/avatar/${speakerTalk.id.hash()}?s=400"
+          )
+          speakers.add(speaker)
+        }
+        speaker.talks.add(talk)
       }
     }
     return speakers.toList()
