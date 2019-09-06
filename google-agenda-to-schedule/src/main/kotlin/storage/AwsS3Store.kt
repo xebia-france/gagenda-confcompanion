@@ -56,7 +56,7 @@ class AwsS3Store : Store {
   }
 
   override fun putSpeakers(dir: String, src: String) {
-    putObject("$dir/agenda.getSpeakers.json", src)
+    putObject("$dir/speakers.json", src)
   }
 }
 
