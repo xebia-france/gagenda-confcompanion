@@ -1,0 +1,26 @@
+{
+  "name": "xebicon-website-to-speakers",
+  "version": "1.0.0",
+  "description": "Scrap xebicon.fr to create speakers.json",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/xebia-france/tool-conf-companion.git"
+  },
+  "author": "Xebia <blacroix@xebia.fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xebia-france/tool-conf-companion/issues"
+  },
+  "homepage": "https://github.com/xebia-france/tool-conf-companion#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}
