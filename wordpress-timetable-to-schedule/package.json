@@ -4,6 +4,7 @@
   "description": "Take a Timetable Wordpress JSON as input and output Conf Companion schedule JSON file",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js > schedule.json",
     "test": "jest"
   },
   "repository": {
@@ -25,5 +26,6 @@
   "homepage": "https://github.com/xebia-france/tool-conf-companion#readme",
   "devDependencies": {
     "jest": "^24.9.0"
-  }
+  },
+  "dependencies": {}
 }

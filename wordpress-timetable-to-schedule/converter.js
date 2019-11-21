@@ -3,9 +3,9 @@ const DATE = process.env.DATE || '2019-11-28';
 
 function clean(description) {
   return description
-    .replace(/\r\n/g, '')
-    .replace(/<img.*level-on.png.*\/>/g, '🌶')
-    .replace(/<img.*level-off.png.*\/>/g, '');
+    .replace(/\r\n/g, ' ')
+    .replace(/<img[a-z0-9 =":/.\-]*level-on[a-z0-9 =":/.\-]*>/g, '🌶')
+    .replace(/<img[a-z0-9 =":/.\-]*level-off[a-z0-9 =":/.\-]*>/g, '')
 }
 
 function convertSpeakers(speakers) {
@@ -42,6 +42,8 @@ function convertKind(title) {
 function removeDuplicate(events) {
   const ref = [];
   ref['pausedjeuner1225'] = '';
+  ref['pausedjeuner1230'] = '';
+  ref['pausedjeuner1240'] = '';
   return events.filter(event => {
     const key = `${event.title}${event.start_hour}${event.start_minute}`
       .toLocaleLowerCase()
