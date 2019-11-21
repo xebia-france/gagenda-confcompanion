@@ -93,7 +93,7 @@ function convert(timetable) {
       fromTime: `${DATE} ${event.start_hour}:${event.start_minute}`,
       toTime: `${DATE} ${event.end_hour}:${event.end_minute}`,
       id: `cc-${event.id}`,
-      room: columns[event.column_id - 1].title,
+      room: columns.find(c => c.id === event.column_id).title,
       speakers: convertSpeakers(event.description_inline),
       summary: clean(event.description),
       title: event.title,
