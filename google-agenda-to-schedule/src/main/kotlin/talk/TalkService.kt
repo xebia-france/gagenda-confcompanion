@@ -21,12 +21,9 @@ import java.util.*
 
 val rooms = listOf(
   "Auditorium",
-  "Avenir Black",
-  "Avenir Light",
-  "Avenir Book",
-  "Avenir Roman",
-  "Avenir Medium",
-  "6>Xebia"
+  "Avenir Light + Book",
+  "Avenir Roman + Medium",
+  "Avenir Black"
 )
 
 class TalkService(private val conferenceId: String) {
