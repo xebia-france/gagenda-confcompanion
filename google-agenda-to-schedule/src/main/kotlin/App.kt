@@ -92,6 +92,7 @@ fun compute(computeRooms: Boolean,
             .asSequence()
             .filter { event -> event.summary != "XKE" }
             .filter { event -> !event.summary.startsWith("DataXDay") }
+            .filter { event -> !event.summary.startsWith("KED - Salle") }
             .filter { event ->
                 event.attendees?.forEach {
                     if (it.email == "allfrance@xebia.fr") {
