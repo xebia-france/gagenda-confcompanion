@@ -46,7 +46,8 @@ class TalkService(private val conferenceId: String) {
           event.summary,
           event.speakers,
           event.description,
-          event.location))
+          event.location,
+          event.hangoutLink))
       } else {
         talks.add(Talk(conferenceId,
           Date(event.start.dateTime.value),
@@ -54,7 +55,8 @@ class TalkService(private val conferenceId: String) {
           event.summary,
           listOf(),
           event.description,
-          event.location))
+          event.location,
+          event.hangoutLink))
       }
     }
     return talks

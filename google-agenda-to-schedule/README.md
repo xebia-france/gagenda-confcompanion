@@ -15,6 +15,7 @@ export DURATION=1
 export ROOM=false
 export S3_DIR=xke
 export SPEAKER=true
+export LOCAL=true # For local development, no S3 upload.
 ```
 
 ```

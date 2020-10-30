@@ -55,7 +55,8 @@ data class Talk(val conferenceId: String,
                 val title: String,
                 val speakers: List<SpeakerTalk>?,
                 val summary: String?,
-                var room: String? = null) {
+                var room: String? = null,
+                val conferenceUrl: String? = null) {
 
     var type: String? = null
     var kind: String? = null
