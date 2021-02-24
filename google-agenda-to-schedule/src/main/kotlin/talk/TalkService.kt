@@ -26,7 +26,8 @@ val rooms = listOf(
   "Avenir Roman",
   "Avenir Medium",
   "Avenir Black",
-  "Arial"
+  "Arial",
+  "Impact"
 )
 
 class TalkService(private val conferenceId: String) {
