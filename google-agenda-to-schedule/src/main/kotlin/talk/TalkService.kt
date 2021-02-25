@@ -27,6 +27,7 @@ val rooms = listOf(
   "Avenir Medium",
   "Avenir Black",
   "Arial",
+  "Tahoma",
   "Impact"
 )
 
