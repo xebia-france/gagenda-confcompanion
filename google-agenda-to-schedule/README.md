@@ -1,5 +1,3 @@
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/xebia-france/google-calendar-conf-companion.svg?columns=all)](https://waffle.io/xebia-france/google-calendar-conf-companion)
-
 # Google Agenda to JSON Converter
 > Convert Google Agenda events to Conf Companion JSON
 
@@ -40,6 +38,7 @@ $> ./gradlew run
 - client_secret.json
 
 > See Google Api application credentials.
+> https://console.cloud.google.com/apis/credentials?project=conf-companion
 
 ```
 {

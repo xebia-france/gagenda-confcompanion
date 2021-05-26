@@ -35,6 +35,7 @@ $> ./gradlew run
 - client_secret.json
 
 > See Google Api application credentials.
+> https://console.cloud.google.com/apis/credentials?project=conf-companion
 
 ```
 {

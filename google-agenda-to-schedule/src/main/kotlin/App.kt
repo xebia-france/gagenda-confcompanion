@@ -43,7 +43,9 @@ fun main() {
     $DAY_FROM: $dayFrom
     $DURATION: $duration
     $ROOM: $room
-    $LOCAL (no S3 upload): $local"""
+    $LOCAL (no S3 upload): $local
+    $S3_DIR: $s3dir
+    $SPEAKER: $speaker"""
     }
 
     val store = if (local.toBoolean()) NoStore() else AwsS3Store()
