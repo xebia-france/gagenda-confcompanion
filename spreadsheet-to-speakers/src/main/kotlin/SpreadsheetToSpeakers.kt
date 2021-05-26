@@ -31,8 +31,9 @@ fun main(args: Array<String>) {
     val range = System.getenv("RANGE")
     val schedule = System.getenv("SCHEDULE")
     val storeDir = System.getenv("S3_DIR")
+    val local: String = System.getenv("LOCAL") ?: "true"
 
-    val app = SpreadsheetToSpeakers(spreadsheetId, range, schedule, storeDir)
+    val app = SpreadsheetToSpeakers(spreadsheetId, range, schedule, storeDir, local.toBoolean())
 
     app.generateSpeakers()
 }
@@ -41,7 +42,8 @@ class SpreadsheetToSpeakers(
         private val spreadsheetId: String,
         private val range: String,
         private val scheduleUrl: String,
-        private val storeDir: String) {
+        private val storeDir: String,
+        local: Boolean) {
 
     companion object {
         const val CREDENTIAL_FOLDER = "credentials"
@@ -60,7 +62,7 @@ class SpreadsheetToSpeakers(
     private val scheduleAdapter = moshi.adapter<List<Talk>>(scheduleType)
     private val speakersType = Types.newParameterizedType(List::class.java, Speaker::class.java)
     private val speakersAdapter = moshi.adapter<List<Speaker>>(speakersType)
-    private val store = AwsS3Store()
+    private val store = if (local) NoStore() else AwsS3Store()
 
     private var schedule: List<Talk>? = null
 
@@ -69,7 +71,9 @@ class SpreadsheetToSpeakers(
         if (spreadsheet == null || spreadsheet.isEmpty()) {
             LOG.warn { "No data found" }
         } else {
-            downloadSchedule()
+            if (scheduleUrl.isNotEmpty()) {
+                downloadSchedule()
+            }
             val speakers = mutableListOf<Speaker>()
             val sLines = dropFirstLines(spreadsheet)
             sLines.forEach { line ->
@@ -85,14 +89,16 @@ class SpreadsheetToSpeakers(
             LOG.info { "Speakers generated in $BUILD_DIR/speakers.json" }
             store.putSpeakers(storeDir, "$BUILD_DIR/speakers.json")
             LOG.info { "Speakers sent to bucket $storeDir" }
-            schedule = generateSchedule(speakers)
-            LOG.debug { schedule }
-            File("$BUILD_DIR/schedule.json").printWriter().use { out ->
-                out.print(scheduleAdapter.toJson(schedule))
+            if (scheduleUrl.isNotEmpty()) {
+                schedule = generateSchedule(speakers)
+                LOG.debug { schedule }
+                File("$BUILD_DIR/schedule.json").printWriter().use { out ->
+                    out.print(scheduleAdapter.toJson(schedule))
+                }
+                LOG.info { "Schedule generated in $BUILD_DIR/schedule.json" }
+                store.putSchedule(storeDir, "$BUILD_DIR/schedule.json")
+                LOG.info { "Schedule sent to bucket $storeDir" }
             }
-            LOG.info { "Schedule generated in $BUILD_DIR/schedule.json" }
-            store.putSchedule(storeDir, "$BUILD_DIR/schedule.json")
-            LOG.info { "Schedule sent to bucket $storeDir" }
         }
     }
 
@@ -224,7 +230,22 @@ class Speaker {
     }
 }
 
-class AwsS3Store {
+interface Store {
+    fun putSchedule(dir: String, src: String)
+    fun putSpeakers(dir: String, src: String)
+}
+
+class NoStore : Store {
+    override fun putSchedule(dir: String, src: String) {
+        // Does nothing
+    }
+
+    override fun putSpeakers(dir: String, src: String) {
+        // Does nothing
+    }
+}
+
+class AwsS3Store : Store {
     companion object {
         const val CLIENT_SECRET = "credentials/aws_secret.json"
         const val CONTENT_TYPE_JSON = "application/json"
@@ -264,11 +285,11 @@ class AwsS3Store {
         }
     }
 
-    fun putSchedule(dir: String, src: String) {
+    override fun putSchedule(dir: String, src: String) {
         putObject("$dir/schedule.json", src)
     }
 
-    fun putSpeakers(dir: String, src: String) {
+    override fun putSpeakers(dir: String, src: String) {
         putObject("$dir/speakers.json", src)
     }
 }
