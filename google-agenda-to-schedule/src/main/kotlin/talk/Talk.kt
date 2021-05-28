@@ -24,6 +24,8 @@ val KIND_KEYNOTE_PATTERN = listOf(
 
 const val HANDSON = "handson"
 const val WORKSHOP = "workshop"
+const val FAST_TRACK = "fastTrack"
+const val CONFERENCE = "conference"
 const val CLOSING = "closing"
 const val PARTY = "party"
 const val LUNCH = "lunch"
@@ -85,6 +87,9 @@ data class Talk(val conferenceId: String,
             if (summary.contains("#$REX", true)) type = REX
             if (summary.contains("#$HANDSON", true)) type = HANDSON
             if (summary.contains("#$WORKSHOP", true)) type = WORKSHOP
+            if (summary.contains("#$FAST_TRACK", true)) type = FAST_TRACK
+            if (summary.contains("#$CONFERENCE", true)) type = CONFERENCE
+
             if (summary.contains("#$DEVOPS", true)) track = DEVOPS
             if (summary.contains("#$FRONT", true)) track = FRONT
             if (summary.contains("#$AGILE", true)) track = AGILE
